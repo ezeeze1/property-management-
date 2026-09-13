@@ -128,16 +128,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                     {currentUser?.id === 'usr-landlord-1' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
                   </button>
                   <button
-                    onClick={() => { handleSelectRole('usr-accountant-1'); setRoleDropdownOpen(false); }}
-                    className="w-full text-left px-3 py-2 hover:bg-slate-800 flex items-center justify-between text-slate-200"
-                  >
-                    <div>
-                      <div className="font-medium text-amber-400">Amina Bello</div>
-                      <div className="text-[10px] text-slate-400">Accountant</div>
-                    </div>
-                    {currentUser?.id === 'usr-accountant-1' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
-                  </button>
-                  <button
                     onClick={() => { handleSelectRole('usr-agent-1'); setRoleDropdownOpen(false); }}
                     className="w-full text-left px-3 py-2 hover:bg-slate-800 flex items-center justify-between text-slate-200"
                   >
@@ -352,7 +342,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => { setMobileMenuOpen(false); handleOpenAuth(); }}
                 className="w-full bg-amber-500 text-slate-950 font-bold py-2.5 rounded-lg text-center text-sm"
               >
-                Tenant Login / Register
+                Portal Login
               </button>
             ) : (
               <button

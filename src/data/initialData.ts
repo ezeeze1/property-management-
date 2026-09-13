@@ -60,16 +60,6 @@ export const INITIAL_USERS: User[] = [
     createdAt: '2024-02-10T11:00:00Z'
   },
   {
-    id: 'usr-accountant-1',
-    name: 'Amina Bello, ACA',
-    email: 'accounts@samsonandson.com',
-    phone: '+234 812 444 5566',
-    role: 'accountant',
-    address: 'Victoria Island, Lagos',
-    avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=300',
-    createdAt: '2024-02-15T12:00:00Z'
-  },
-  {
     id: 'usr-tenant-1',
     name: 'John Doe',
     email: 'tenant@gmail.com',
@@ -365,7 +355,7 @@ export const INITIAL_PAYMENTS: Payment[] = [
     paymentDate: '2025-10-20',
     description: 'Annual rent renewal payment for 2025-2026 tenancy period',
     status: 'Confirmed',
-    verifiedBy: 'Amina Bello (Accountant)',
+    verifiedBy: 'Chief Samson (Super Admin)',
     verificationDate: '2025-10-21',
     createdAt: '2025-10-20T14:30:00Z'
   },

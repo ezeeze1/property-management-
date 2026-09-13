@@ -10,16 +10,11 @@ import {
   AuditLog
 } from '../../types';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  Tooltip,
+  ResponsiveContainer
 } from 'recharts';
 import {
   LayoutDashboard,
@@ -30,6 +25,7 @@ import {
   Clock,
   DollarSign,
   PlusCircle,
+  UserPlus,
   FileText,
   ShieldCheck,
   Wrench,
@@ -45,6 +41,7 @@ import {
   Copy,
   Lock
 } from 'lucide-react';
+import { RegisterTenantModal } from './RegisterTenantModal';
 
 interface AdminDashboardProps {
   currentUser: User;
@@ -65,6 +62,16 @@ interface AdminDashboardProps {
   onUpdateSettings: (newSettings: SystemSettings) => void;
   onViewReceipt: (receipt: Receipt) => void;
   onSendReminder: (tenancyId: string) => void;
+  onRegisterTenant?: (data: {
+    tenantName: string;
+    email: string;
+    phone: string;
+    propertyId: string;
+    rentAmount: number;
+    startDate: string;
+    expiryDate: string;
+    emergencyContact?: string;
+  }) => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -85,12 +92,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onUpdateMaintenanceStatus,
   onUpdateSettings,
   onViewReceipt,
-  onSendReminder
+  onSendReminder,
+  onRegisterTenant
 }) => {
   const [adminTab, setAdminTab] = useState<'overview' | 'payments' | 'properties' | 'tenancies' | 'landlords' | 'maintenance' | 'audit' | 'settings'>('overview');
   
   // Property Creation Modal State
   const [showAddPropertyModal, setShowAddPropertyModal] = useState(false);
+  const [showRegisterTenantModal, setShowRegisterTenantModal] = useState(false);
+
+  const canRegisterTenant = ['super_admin', 'landlord', 'agent'].includes(currentUser?.role || '');
   const [newProp, setNewProp] = useState({
     title: '',
     location: 'Victoria Island, Lagos',
@@ -186,7 +197,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {canRegisterTenant && (
+              <button
+                onClick={() => setShowRegisterTenantModal(true)}
+                className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-lg transition-all"
+              >
+                <UserPlus className="w-4 h-4" /> Register New Tenant
+              </button>
+            )}
             <button
               onClick={() => setShowAddPropertyModal(true)}
               className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-lg transition-all"
@@ -260,38 +279,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
             </div>
 
-            {/* Visual Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              
-              <div className="lg:col-span-8 bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-                <h3 className="text-base font-bold font-serif text-white">Monthly Rent Collection Trends (₦)</h3>
-                <div className="h-72 w-full pt-4">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={revenueChartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                      <XAxis dataKey="month" stroke="#94a3b8" />
-                      <YAxis stroke="#94a3b8" />
-                      <Tooltip
-                        contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff' }}
-                        formatter={(val: number) => [`₦${val.toLocaleString()}`, 'Amount']}
-                      />
-                      <Bar dataKey="collected" fill="#f59e0b" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              <div className="lg:col-span-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-                <h3 className="text-base font-bold font-serif text-white">Portfolio Occupancy Breakdown</h3>
-                <div className="h-60 w-full">
+            {/* Portfolio Occupancy Section */}
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
+              <h3 className="text-base font-bold font-serif text-white">Portfolio Occupancy Breakdown</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={occupancyChartData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={50}
-                        outerRadius={80}
+                        innerRadius={60}
+                        outerRadius={90}
                         paddingAngle={5}
                         dataKey="value"
                       >
@@ -303,12 +303,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="flex justify-around text-xs pt-2 border-t border-slate-800">
-                  <span className="text-emerald-400">Available: {safeProperties.filter(p => p.status === 'Available').length}</span>
-                  <span className="text-amber-400">Occupied: {safeProperties.filter(p => p.status === 'Occupied').length}</span>
+
+                <div className="space-y-4 text-xs">
+                  <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                      <span className="font-semibold text-slate-200">Available Units</span>
+                    </div>
+                    <span className="font-bold text-emerald-400 text-sm">{safeProperties.filter(p => p.status === 'Available').length} Properties</span>
+                  </div>
+
+                  <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                      <span className="font-semibold text-slate-200">Occupied Units</span>
+                    </div>
+                    <span className="font-bold text-amber-400 text-sm">{safeProperties.filter(p => p.status === 'Occupied').length} Tenancies</span>
+                  </div>
+
+                  <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <span className="font-semibold text-slate-200">Under Maintenance</span>
+                    </div>
+                    <span className="font-bold text-red-400 text-sm">{safeProperties.filter(p => p.status === 'Maintenance').length} Units</span>
+                  </div>
                 </div>
               </div>
-
             </div>
 
           </div>
@@ -497,7 +518,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* TAB 4: TENANCIES */}
         {adminTab === 'tenancies' && (
           <div className="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-2xl space-y-6">
-            <h3 className="text-xl font-bold font-serif text-white">Tenancy Leases & Renewal Engine</h3>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 className="text-xl font-bold font-serif text-white">Tenancy Leases & Renewal Engine</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Manage active leases, tenant portal access, and renewal notifications.</p>
+              </div>
+              {canRegisterTenant && (
+                <button
+                  onClick={() => setShowRegisterTenantModal(true)}
+                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-lg transition-all"
+                >
+                  <UserPlus className="w-4 h-4" /> Register New Tenant
+                </button>
+              )}
+            </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left text-slate-300">
@@ -791,6 +825,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </form>
           </div>
         </div>
+      )}
+
+      {/* Register Tenant Modal */}
+      {showRegisterTenantModal && (
+        <RegisterTenantModal
+          properties={properties}
+          currentUser={currentUser}
+          onClose={() => setShowRegisterTenantModal(false)}
+          onRegisterTenant={(data) => {
+            if (onRegisterTenant) {
+              onRegisterTenant(data);
+            }
+          }}
+        />
       )}
 
     </div>

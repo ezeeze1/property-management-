@@ -2,7 +2,6 @@ export type UserRole =
   | 'super_admin'
   | 'property_manager'
   | 'agent'
-  | 'accountant'
   | 'maintenance_staff'
   | 'landlord'
   | 'tenant';

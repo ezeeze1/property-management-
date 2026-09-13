@@ -241,7 +241,7 @@ async function startServer() {
     if (!pay) return res.status(404).json({ error: 'Payment not found' });
 
     pay.status = 'Confirmed';
-    pay.verifiedBy = req.body.verifierName || 'Amina Bello (Accountant)';
+    pay.verifiedBy = req.body.verifierName || 'Chief Samson (Super Admin)';
     pay.verificationDate = new Date().toISOString();
 
     // Auto Generate Receipt

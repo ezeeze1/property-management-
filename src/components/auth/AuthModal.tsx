@@ -9,18 +9,11 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ users, onClose, onLoginSuccess }) => {
-  const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('login');
+  const [mode, setMode] = useState<'login' | 'forgot'>('login');
   const [email, setEmail] = useState('tenant@gmail.com');
   const [password, setPassword] = useState('password123');
   const [error, setError] = useState('');
   const [resetSent, setResetSent] = useState(false);
-
-  // Registration fields
-  const [regName, setRegName] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regPhone, setRegPhone] = useState('');
-  const [regAddress, setRegAddress] = useState('');
-  const [regRole, setRegRole] = useState<UserRole>('tenant');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,24 +24,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ users, onClose, onLoginSuc
     } else {
       setError('Invalid credentials. Please select one of the pre-configured demo accounts below.');
     }
-  };
-
-  const handleRegister = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!regName || !regEmail || !regPhone) {
-      setError('Please fill all required fields');
-      return;
-    }
-    const newUser: User = {
-      id: `usr-${Date.now()}`,
-      name: regName,
-      email: regEmail,
-      phone: regPhone,
-      address: regAddress,
-      role: regRole,
-      createdAt: new Date().toISOString()
-    };
-    onLoginSuccess(newUser);
   };
 
   const handleForgotPassword = (e: React.FormEvent) => {
@@ -81,7 +56,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ users, onClose, onLoginSuc
           </div>
           <h2 className="text-2xl font-bold font-serif text-white">
             {mode === 'login' && 'SAMSON & SON Portal Access'}
-            {mode === 'register' && 'Tenant Account Registration'}
             {mode === 'forgot' && 'Reset Portal Password'}
           </h2>
           <p className="text-xs text-slate-400">
@@ -122,13 +96,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ users, onClose, onLoginSuc
             >
               <div className="font-bold text-amber-300 truncate">Alhaji Bello</div>
               <div className="text-[10px] text-slate-400">Landlord</div>
-            </button>
-            <button
-              onClick={() => handleQuickRoleSelect('usr-accountant-1')}
-              className="bg-slate-900 hover:bg-slate-800 border border-slate-700 p-2 rounded-lg text-left"
-            >
-              <div className="font-bold text-amber-300 truncate">Amina Bello</div>
-              <div className="text-[10px] text-slate-400">Accountant</div>
             </button>
             <button
               onClick={() => handleQuickRoleSelect('usr-agent-1')}
@@ -195,98 +162,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ users, onClose, onLoginSuc
               Log In to Portal
             </button>
 
-            <div className="text-center pt-2">
-              <span className="text-slate-400">Don't have an account? </span>
-              <button
-                type="button"
-                onClick={() => setMode('register')}
-                className="text-amber-400 font-bold hover:underline"
-              >
-                Register Here
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* REGISTER FORM */}
-        {mode === 'register' && (
-          <form onSubmit={handleRegister} className="space-y-3 text-xs">
-            <div>
-              <label className="block text-slate-300 font-semibold mb-1">Full Name *</label>
-              <input
-                type="text"
-                required
-                value={regName}
-                onChange={e => setRegName(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:ring-2 focus:ring-amber-500 outline-none"
-                placeholder="Chief Babatunde"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1">Email Address *</label>
-                <input
-                  type="email"
-                  required
-                  value={regEmail}
-                  onChange={e => setRegEmail(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:ring-2 focus:ring-amber-500 outline-none"
-                  placeholder="name@domain.ng"
-                />
-              </div>
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1">Phone Number *</label>
-                <input
-                  type="tel"
-                  required
-                  value={regPhone}
-                  onChange={e => setRegPhone(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:ring-2 focus:ring-amber-500 outline-none"
-                  placeholder="+234 803 000 0000"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-slate-300 font-semibold mb-1">Address / Property Unit</label>
-              <input
-                type="text"
-                value={regAddress}
-                onChange={e => setRegAddress(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:ring-2 focus:ring-amber-500 outline-none"
-                placeholder="Victoria Island, Lagos"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-300 font-semibold mb-1">Account Role</label>
-              <select
-                value={regRole}
-                onChange={e => setRegRole(e.target.value as UserRole)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:ring-2 focus:ring-amber-500 outline-none"
-              >
-                <option value="tenant">Tenant</option>
-                <option value="landlord">Landlord / Owner</option>
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl text-sm transition-colors shadow-lg mt-2"
-            >
-              Create Portal Account
-            </button>
-
-            <div className="text-center pt-2">
-              <span className="text-slate-400">Already registered? </span>
-              <button
-                type="button"
-                onClick={() => setMode('login')}
-                className="text-amber-400 font-bold hover:underline"
-              >
-                Back to Login
-              </button>
+            <div className="text-center pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+              Note: Public self-registration is disabled. Tenant accounts are registered exclusively by Super Admin, Landlords, or Property Agents within the Portal.
             </div>
           </form>
         )}

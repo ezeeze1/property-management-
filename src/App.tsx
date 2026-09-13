@@ -329,6 +329,69 @@ export default function App() {
     }
   };
 
+  const handleRegisterTenant = async (data: {
+    tenantName: string;
+    email: string;
+    phone: string;
+    propertyId: string;
+    rentAmount: number;
+    startDate: string;
+    expiryDate: string;
+    emergencyContact?: string;
+  }) => {
+    try {
+      const newTenantId = `usr-tenant-${Date.now()}`;
+      const newTenantUser: User = {
+        id: newTenantId,
+        name: data.tenantName,
+        email: data.email,
+        phone: data.phone,
+        role: 'tenant',
+        emergencyContact: data.emergencyContact,
+        propertyId: data.propertyId,
+        createdAt: new Date().toISOString()
+      };
+
+      const newTenancy: Tenancy = {
+        id: `tenancy-${Date.now()}`,
+        tenantId: newTenantId,
+        propertyId: data.propertyId,
+        rentAmount: data.rentAmount,
+        startDate: data.startDate,
+        expiryDate: data.expiryDate,
+        renewalDate: data.expiryDate,
+        depositPaid: data.rentAmount,
+        status: 'Active',
+        gracePeriodDays: 14,
+        outstandingBalance: 0
+      };
+
+      try {
+        await api.createUser(newTenantUser);
+      } catch (err) {
+        console.warn('Backend API createUser call:', err);
+      }
+
+      setUsers(prev => [...prev, newTenantUser]);
+      setTenancies(prev => [newTenancy, ...prev]);
+      setProperties(prev => prev.map(p => p.id === data.propertyId ? { ...p, status: 'Occupied', currentTenantId: newTenantId } : p));
+      
+      const newLog: AuditLog = {
+        id: `log-${Date.now()}`,
+        userId: currentUser?.id || 'admin',
+        userName: currentUser?.name || 'Authorized Signatory',
+        userRole: currentUser?.role || 'super_admin',
+        action: 'Register Tenant',
+        details: `Registered tenant ${data.tenantName} and issued lease for property ID ${data.propertyId}`,
+        timestamp: new Date().toISOString()
+      };
+      setAuditLogs(prev => [newLog, ...prev]);
+
+    } catch (err) {
+      console.error('Failed to register tenant:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
       
@@ -522,12 +585,13 @@ export default function App() {
               onUpdateSettings={s => setSettings(s)}
               onViewReceipt={r => setSelectedReceipt(r)}
               onSendReminder={handleSendReminder}
+              onRegisterTenant={handleRegisterTenant}
             />
           ) : (
             <div className="py-20 text-center space-y-4">
               <h2 className="text-2xl font-bold font-serif">Corporate Management Access Required</h2>
               <p className="text-xs text-slate-600 max-w-md mx-auto">
-                Please log in with an administrative, accountant, property manager, or agent credential.
+                Please log in with an administrative, landlord/owner, property manager, or agent credential.
               </p>
               <button
                 onClick={() => setIsAuthModalOpen(true)}
