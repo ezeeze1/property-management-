@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Property, User, Tenancy } from '../../types';
-import { X, UserPlus, Building2, Calendar, DollarSign, Mail, Phone, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { X, UserPlus, Building2, Calendar, DollarSign, Mail, Phone, Lock, Eye, EyeOff, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 interface RegisterTenantModalProps {
   properties: Property[];
@@ -10,6 +10,7 @@ interface RegisterTenantModalProps {
     tenantName: string;
     email: string;
     phone: string;
+    password?: string;
     propertyId: string;
     rentAmount: number;
     startDate: string;
@@ -27,6 +28,8 @@ export const RegisterTenantModal: React.FC<RegisterTenantModalProps> = ({
   const [tenantName, setTenantName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('password123');
+  const [showPassword, setShowPassword] = useState(false);
   const [emergencyContact, setEmergencyContact] = useState('');
   
   const safeProperties = properties || [];
@@ -61,8 +64,8 @@ export const RegisterTenantModal: React.FC<RegisterTenantModalProps> = ({
     e.preventDefault();
     setError('');
 
-    if (!tenantName || !email || !phone || !selectedPropertyId) {
-      setError('Please fill in all required fields (Name, Email, Phone, and Property Assignment).');
+    if (!tenantName || !email || !phone || !password || !selectedPropertyId) {
+      setError('Please fill in all required fields (Name, Email, Phone, Password, and Property Assignment).');
       return;
     }
 
@@ -70,6 +73,7 @@ export const RegisterTenantModal: React.FC<RegisterTenantModalProps> = ({
       tenantName,
       email,
       phone,
+      password,
       propertyId: selectedPropertyId,
       rentAmount,
       startDate,
@@ -178,6 +182,30 @@ export const RegisterTenantModal: React.FC<RegisterTenantModalProps> = ({
                     />
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Assign Portal Password *</label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-10 py-2 text-white focus:ring-2 focus:ring-amber-500 outline-none font-mono text-xs"
+                    placeholder="Assign tenant initial password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 p-1"
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">Default temporary password set to <code className="text-amber-400">password123</code>. The tenant can use this to sign in.</p>
               </div>
 
               <div>

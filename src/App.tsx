@@ -333,6 +333,7 @@ export default function App() {
     tenantName: string;
     email: string;
     phone: string;
+    password?: string;
     propertyId: string;
     rentAmount: number;
     startDate: string;
