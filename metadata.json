@@ -1,0 +1,6 @@
+{
+  "name": "SAMSON & SON LTD. Property Management",
+  "description": "Professional property management, tenancy services, rent collection, and tenant portal in Nigeria.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
